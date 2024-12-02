@@ -5,12 +5,20 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lroussel <lroussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/21 10:10:58 by lroussel          #+#    #+#             */
-/*   Updated: 2024/11/24 11:58:38 by lroussel         ###   ########.fr       */
+/*   Created: 2024/12/02 10:32:36 by lroussel          #+#    #+#             */
+/*   Updated: 2024/12/02 14:23:43 by lroussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
+
+int	type = 0;
+
+void	fail_malloc(void)
+{
+	ft_printf("Fail malloc");//TODO
+	exit(EXIT_FAILURE);
+}
 
 void	char_repeat(char c, int times, int linebreak)
 {
@@ -52,44 +60,101 @@ void	printheader(void)
 	char_repeat('=', equals / 2, 0);
 	ft_printf(" PID: %i ", pid);
 	char_repeat('=', equals / 2 + (equals % 2), 1);
-	ft_printf("\n\n» ");
+	ft_printf("\n");
 }
 
-void	process(int sign, siginfo_t *info, void *context)
+void	process_signature(int sig, int *len)
 {
-	static int	c = 0;
 	static int	readed = 0;
-
-	 (void)context;
-	if (sign == SIGUSR2)
-		c |= (0x01 << (7 - readed));
+	static int	c = 0;
+	
+	c |= (sig == SIGUSR2) << (7 - readed);
 	readed++;
 	if (readed == 8)
 	{
-		write(1, &c, 1);
-		if (!c)
-		{
-			write(1, "\n» ", 4);
-			kill(info->si_pid, SIGUSR1);
-		}
-		readed = 0;
+		if (c >= '0' && c <= '9')
+			*len = (*len) * 10 + (c - '0');
+		else if (c == 'a')
+			type = 1;
+		else
+			*len = -1;
 		c = 0;
+		readed = 0;
 	}
 }
 
-int	main(void)
+void	process(int sig, siginfo_t *info, void *context)
 {
+	static int	readed = 0;
+	static int	c = 0;
+	static int	len = 0;
+	static int	added = 0;
+	static char	*word = NULL;
+
+	if (type == 0)
+	{
+		process_signature(sig, &len);
+		if (len == -1)
+		{
+			kill(info->si_pid, SIGUSR1);
+			len = 0;
+		}
+		else
+			kill(info->si_pid, SIGUSR2);
+		return ;
+	}
+
+	(void)context;
+	c |= (sig == SIGUSR2) << (7 - readed);
+	readed++;
+	if (readed == 8)
+	{
+		if (!word)
+		{
+			word = malloc(sizeof(char) * (len + 1));
+			if (!word)
+				fail_malloc();
+		}
+
+		added++;
+		if (!c)
+		{
+			write(1, "» ", 4);
+			word[len] = '\0';
+			write(1, word, len);
+			free(word);
+			word = NULL;
+			write(1, "\n", 1);
+			type = 0;
+			len = 0;
+			added = 0;
+		}
+		else if (added > len)
+		{
+			kill(info->si_pid, SIGUSR1);
+			type = 0;
+			len = 0;
+			added = 0;
+		}
+		else
+			word[added - 1] = c;
+		readed = 0;
+		c = 0;
+	}
+	kill(info->si_pid, SIGUSR2);
+}
+
+int	main(void)
+{	
 	struct sigaction	action;
 
 	printheader();
-	action.sa_flags = 0;
+	action.sa_flags = SA_SIGINFO;
 	action.sa_sigaction = &process;
 	sigemptyset(&action.sa_mask);
+	sigaction(SIGUSR1, &action, NULL);
+	sigaction(SIGUSR2, &action, NULL);
 	while (1)
-	{
-		sigaction(SIGUSR1, &action, NULL);
-		sigaction(SIGUSR2, &action, NULL);
 		pause();
-	}
 	return (0);
 }

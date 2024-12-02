@@ -6,7 +6,8 @@ INCLUDES = $(addprefix -I , $(INCLUDE))
 CLIENT = client
 SERVER = server
 
-CLIENT_DEFAULT =	client.c
+CLIENT_DEFAULT =	client.c \
+					utils.c
 SERVER_DEFAULT = 	server.c
 
 CLIENT_FILES = $(addprefix $(SRC)/, $(CLIENT_DEFAULT))
@@ -43,3 +44,9 @@ fclean: clean
 	rm -f $(CLIENT)
 	rm -f $(SERVER)
 	make -C $(FT_PRINTF_DIR) fclean
+
+testc:
+	cc src/clienttest.c ft_printf/src/*.c -I include -I ft_printf/include -o ct
+
+tests:
+	cc src/servertest.c ft_printf/src/*.c -I include -I ft_printf/include -o st
