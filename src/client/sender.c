@@ -1,35 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   client.c                                           :+:      :+:    :+:   */
+/*   sender.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lroussel <lroussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/02 10:11:40 by lroussel          #+#    #+#             */
-/*   Updated: 2024/12/02 14:32:33 by lroussel         ###   ########.fr       */
+/*   Created: 2024/12/02 16:27:13 by lroussel          #+#    #+#             */
+/*   Updated: 2024/12/03 16:22:15 by lroussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-int	received;
-
-void	wrong_pid(int pid)
-{
-	ft_printf("Invalid PID: %i\n", pid);//TODO
-	exit(EXIT_FAILURE);
-}
-
 void	send_sig(int pid, int sig)
 {
 	int	fail;
 
-	received = 0;
+	set_received(0);
 	if (kill(pid, sig) == -1)
-		wrong_pid(pid);
-
+		wrong_pid();
 	fail = 0;
-	while (!received)
+	while (!is_received())
 	{
 		usleep(5);
 		if (fail > 50)
@@ -42,7 +33,7 @@ void	send_sig(int pid, int sig)
 }
 
 void	send_char(int pid, int c)
-{	
+{
 	int	i;
 
 	i = 8;
@@ -83,36 +74,20 @@ void	send(int pid, char *message)
 	if (resend(0))
 	{
 		send(pid, message);
+		warning("Signal lost, resending message... (warn code 0)");
 		return ;
 	}
 	resend(2);
 	send_message(pid, message);
 	if (resend(0))
 	{
+		warning("Signal lost, resending message... (warn code 1)");
 		send(pid, message);
 		return ;
 	}
-}
-
-void	on_receive(int sig)
-{
-	(void)sig;
-	received = 1;
-}
-
-int	main(int argc, char **argv)
-{
-
-	if (argc != 3 || !is_digit(argv[1]))
+	if (is_received())
 	{
-		ft_printf("invalid format\n");//TODO
-		return (1);
+		//write(1, "\033[32mThe message has been received by the server !", 50);
+		//write(1, "\033[39m\n", 6);
 	}
-	if (ft_strlen(argv[2]) == 0)
-	{
-		ft_printf("empty message\n");//TODO
-		return (2);
-	}
-	signal(SIGUSR2, on_receive);
-	send(ft_mini_atoi(argv[1]), argv[2]);
 }

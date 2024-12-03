@@ -1,53 +1,40 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   server.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lroussel <lroussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/02 10:15:29 by lroussel          #+#    #+#             */
-/*   Updated: 2024/12/03 16:13:54 by lroussel         ###   ########.fr       */
+/*   Created: 2024/12/02 10:32:36 by lroussel          #+#    #+#             */
+/*   Updated: 2024/12/03 12:16:54 by lroussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-int	resend(int type)
-{
-	static int	value = 0;
+int	g_type = 0;
 
-	if (type == 1)
-		value = 1;
-	else if (type == 2)
-		value = 0;
-	return (value);
+void	set_type(int type)
+{
+	g_type = type;
 }
 
-void	sresend(int sig)
+int	get_type(void)
 {
-	if (sig == SIGUSR1)
-		resend(1);
+	return (g_type);
 }
 
-int	is_digit(char *str)
+int	main(void)
 {
-	int	i;
+	struct sigaction	action;
 
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] < '0' || str[i] > '9')
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
-void	ft_bzero(char *element, int len)
-{
-	while (len >= 0)
-	{
-		element[len] = '\0';
-		len--;
-	}
+	head();
+	action.sa_flags = SA_SIGINFO;
+	action.sa_sigaction = &process;
+	sigemptyset(&action.sa_mask);
+	sigaction(SIGUSR1, &action, NULL);
+	sigaction(SIGUSR2, &action, NULL);
+	while (1)
+		pause();
+	return (0);
 }

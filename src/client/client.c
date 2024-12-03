@@ -1,53 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   client.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lroussel <lroussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/02 10:15:29 by lroussel          #+#    #+#             */
-/*   Updated: 2024/12/03 16:13:54 by lroussel         ###   ########.fr       */
+/*   Created: 2024/12/02 10:11:40 by lroussel          #+#    #+#             */
+/*   Updated: 2024/12/02 16:59:53 by lroussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-int	resend(int type)
-{
-	static int	value = 0;
+int	g_received;
 
-	if (type == 1)
-		value = 1;
-	else if (type == 2)
-		value = 0;
-	return (value);
+void	set_received(int received)
+{
+	g_received = received;
 }
 
-void	sresend(int sig)
+int	is_received(void)
 {
-	if (sig == SIGUSR1)
-		resend(1);
+	return (g_received);
 }
 
-int	is_digit(char *str)
+void	on_receive(int sig)
 {
-	int	i;
-
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] < '0' || str[i] > '9')
-			return (0);
-		i++;
-	}
-	return (1);
+	(void)sig;
+	g_received = 1;
 }
 
-void	ft_bzero(char *element, int len)
+int	main(int argc, char **argv)
 {
-	while (len >= 0)
-	{
-		element[len] = '\0';
-		len--;
-	}
+	if (argc != 3 || !is_digit(argv[1]))
+		invalid_format(argv[0], "<pid> <message>");
+	if (ft_strlen(argv[2]) == 0)
+		empty_message();
+	signal(SIGUSR2, on_receive);
+	send(ft_mini_atoi(argv[1]), argv[2]);
 }
