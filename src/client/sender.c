@@ -13,7 +13,7 @@
 #include "minitalk.h"
 #include "client.h"
 
-static int	send_sig(int pid, int sig)
+static void	send_sig(int pid, int sig)
 {
 	int	try;
 
@@ -21,15 +21,14 @@ static int	send_sig(int pid, int sig)
 	if (kill(pid, sig) == -1)
 		wrong_pid();
 	try = 0;
-	usleep(100);
+	usleep(1);
 	while (!is_received())
 	{
 		try++;
-		if (try >= 50)
-			return (0);
-		usleep(100);
+		if (try >= 500)
+			return ;
+		usleep(1);
 	}
-	return (1);
 }
 
 static void	send_char(int pid, int c)

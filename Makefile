@@ -54,6 +54,8 @@ all: $(CLIENT) $(SERVER)
 	@echo $(SEPARATOR)
 	@echo "${GREEN}${CHECK} All targets are up to date!${CLEAR}"
 
+bonus: all
+
 $(CLIENT): $(OBJ) $(CLIENT_OBJS) $(FT_PRINTF)
 	@echo $(SEPARATOR)
 	@echo "${ORANGE}${ARROW} Compiling ${YELLOW}${CLIENT}${ORANGE}...${CLEAR}"
