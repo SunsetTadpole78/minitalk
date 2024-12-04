@@ -6,7 +6,7 @@
 /*   By: lroussel <lroussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/02 15:56:05 by lroussel          #+#    #+#             */
-/*   Updated: 2024/12/03 16:57:40 by lroussel         ###   ########.fr       */
+/*   Updated: 2024/12/04 10:15:02 by lroussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,21 +26,6 @@ static void	error(char *message, int format, int br)
 		write(2, "\n", 1);
 }
 
-void	wrong_pid(void)
-{
-	error("Invalid PID", 1, 1);
-	exit(EXIT_FAILURE);
-}
-
-void	invalid_format(char *name, char *format)
-{
-	error("Usage: ", 1, 0);
-	error(name, 0, 0);
-	error(" ", 0, 0);
-	error(format, 0, 1);
-	exit(EXIT_FAILURE);
-}
-
 void	empty_message(void)
 {
 	error("Empty Message", 1, 1);
@@ -53,7 +38,17 @@ void	fail_malloc(void)
 	exit(EXIT_FAILURE);
 }
 
-void	warning(char *message)
+void	invalid_format(char *name, char *format)
 {
-	ft_printf("\033[38;5;208m[Warning] %s\033[0m\n", message);
+	error("Usage: ", 1, 0);
+	error(name, 0, 0);
+	error(" ", 0, 0);
+	error(format, 0, 1);
+	exit(EXIT_FAILURE);
+}
+
+void	wrong_pid(void)
+{
+	error("Invalid PID", 1, 1);
+	exit(EXIT_FAILURE);
 }

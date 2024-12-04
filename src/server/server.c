@@ -11,24 +11,13 @@
 /* ************************************************************************** */
 
 #include "minitalk.h"
-
-int	g_type = 0;
-
-void	set_type(int type)
-{
-	g_type = type;
-}
-
-int	get_type(void)
-{
-	return (g_type);
-}
+#include "server.h"
 
 int	main(void)
 {
 	struct sigaction	action;
 
-	head();
+	header();
 	action.sa_flags = SA_SIGINFO;
 	action.sa_sigaction = &process;
 	sigemptyset(&action.sa_mask);

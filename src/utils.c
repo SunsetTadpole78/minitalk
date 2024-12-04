@@ -6,27 +6,33 @@
 /*   By: lroussel <lroussel@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/02 10:15:29 by lroussel          #+#    #+#             */
-/*   Updated: 2024/12/03 16:13:54 by lroussel         ###   ########.fr       */
+/*   Updated: 2024/12/03 18:36:34 by lroussel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-int	resend(int type)
+void	char_repeat(char c, int times, int linebreak)
 {
-	static int	value = 0;
+	int	i;
 
-	if (type == 1)
-		value = 1;
-	else if (type == 2)
-		value = 0;
-	return (value);
+	i = 0;
+	while (i < times)
+	{
+		ft_printf("%c", c);
+		i++;
+	}
+	if (linebreak)
+		ft_printf("\n");
 }
 
-void	sresend(int sig)
+void	ft_bzero(char *message, int len)
 {
-	if (sig == SIGUSR1)
-		resend(1);
+	while (len >= 0)
+	{
+		message[len] = '\0';
+		len--;
+	}
 }
 
 int	is_digit(char *str)
@@ -43,11 +49,7 @@ int	is_digit(char *str)
 	return (1);
 }
 
-void	ft_bzero(char *element, int len)
+void	warning(char *message)
 {
-	while (len >= 0)
-	{
-		element[len] = '\0';
-		len--;
-	}
+	ft_printf("\033[38;5;208m[Warning] %s\033[0m\n", message);
 }

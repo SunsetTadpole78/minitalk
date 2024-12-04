@@ -22,15 +22,22 @@ INCLUDES = $(addprefix -I , $(INCLUDE))
 CLIENT = client
 SERVER = server
 
-CLIENT_DEFAULT =	client/client.c	\
-					client/sender.c	\
-					utils.c			\
-					error.c
-SERVER_DEFAULT = 	server/server.c		\
-					server/receiver.c	\
-					server/header.c \
-					utils.c		\
-					error.c
+DEFAULT =	error.c	\
+			utils.c
+
+CLIENT_DEFAULT =	client/acknowledgment_utils.c	\
+					client/client.c					\
+					client/resend_utils.c			\
+					client/sender.c					\
+					$(DEFAULT)
+
+SERVER_DEFAULT = 	server/header.c					\
+					server/message_utils.c			\
+					server/receiver.c				\
+					server/server.c					\
+					server/signature_utils.c		\
+					server/type_utils.c				\
+					$(DEFAULT)
 
 CLIENT_FILES = $(addprefix $(SRC)/, $(CLIENT_DEFAULT))
 SERVER_FILES = $(addprefix $(SRC)/, $(SERVER_DEFAULT))

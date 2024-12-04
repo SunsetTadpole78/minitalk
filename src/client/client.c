@@ -11,24 +11,7 @@
 /* ************************************************************************** */
 
 #include "minitalk.h"
-
-int	g_received;
-
-void	set_received(int received)
-{
-	g_received = received;
-}
-
-int	is_received(void)
-{
-	return (g_received);
-}
-
-void	on_receive(int sig)
-{
-	(void)sig;
-	g_received = 1;
-}
+#include "client.h"
 
 int	main(int argc, char **argv)
 {
@@ -36,6 +19,6 @@ int	main(int argc, char **argv)
 		invalid_format(argv[0], "<pid> <message>");
 	if (ft_strlen(argv[2]) == 0)
 		empty_message();
-	signal(SIGUSR2, on_receive);
+	signal(SIGUSR2, handle_acknowledgment);
 	send(ft_mini_atoi(argv[1]), argv[2]);
 }
